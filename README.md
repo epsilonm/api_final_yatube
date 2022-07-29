@@ -488,7 +488,7 @@ Anonymous requests are forbidden.
 ```
 {
   "token": [
-    "Обязательное поле."
+    "Required field"
   ]
 }
 ```
