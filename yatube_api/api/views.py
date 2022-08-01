@@ -4,6 +4,7 @@ from rest_framework import filters
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 
 from posts.models import Post, Group
 from .permissions import IsAuthorOrReadOnly
@@ -52,6 +53,7 @@ class FollowList(mixins.ListModelMixin,
                        filters.OrderingFilter)
     search_fields = ('=following__username', '=user__username')
     ordering_fields = ('following__username',)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return self.request.user.follower.all()
