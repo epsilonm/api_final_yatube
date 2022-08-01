@@ -4,6 +4,8 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from posts.models import Post, Group, Comment, Follow, User
 
+from .validators import FollowingValidator
+
 
 class GroupSerializer(serializers.ModelSerializer):
 
@@ -20,7 +22,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'author', 'post', 'text', 'created')
-        read_only_fields = ('author', 'post')
+        read_only_fields = ('post',)
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -34,22 +36,19 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(read_only=True, slug_field='username',
+    user = serializers.SlugRelatedField(read_only=True,
+                                        slug_field='username',
                                         default=CurrentUserDefault())
     following = serializers.SlugRelatedField(queryset=User.objects.all(),
-                                             slug_field='username',
-                                             )
+                                             slug_field='username')
 
     class Meta:
         model = Follow
         fields = '__all__'
-        validators = [UniqueTogetherValidator(
-            queryset=Follow.objects.all(),
-            fields=('user', 'following')
-        )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'following')
+            ),
+            FollowingValidator()
         ]
-
-    def validate_following(self, value):
-        if self.context['request'].user == value:
-            raise serializers.ValidationError('You can not follow yourself!')
-        return value

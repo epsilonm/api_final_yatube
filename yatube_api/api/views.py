@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
 
 from posts.models import Post, Group
 from .permissions import IsAuthorOrReadOnly
@@ -43,12 +43,14 @@ class CommentViewSet(YatubeViewSet):
         return self.get_post().comments.all()
 
 
-class FollowViewSet(YatubeViewSet):
+class FollowList(mixins.ListModelMixin,
+                 mixins.CreateModelMixin,
+                 viewsets.GenericViewSet):
+
     serializer_class = FollowSerializer
-    permission_classes = (IsAuthenticated,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,
                        filters.OrderingFilter)
-    search_fields = ('following__username',)
+    search_fields = ('=following__username', '=user__username')
     ordering_fields = ('following__username',)
 
     def get_queryset(self):
