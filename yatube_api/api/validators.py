@@ -2,9 +2,9 @@ from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 
 
-class FollowingValidator:
+class UniqueFieldValidator:
     """
-    Validator for checking that user can not follow himself.
+    Validator for checking that all fields contain unique information.
     """
     message = _('The field {field_name} must be unique.')
     missing_message = _('This field is required.')
@@ -16,7 +16,7 @@ class FollowingValidator:
 
     def enforce_required_fields(self, attrs, serializer):
         """
-        The `FollowingValidator` always forces an implied 'required'
+        The `UniqueFieldValidator` always forces an implied 'required'
         state on the fields it applies to.
         """
         if serializer.instance is not None:
