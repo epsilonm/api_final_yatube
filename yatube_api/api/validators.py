@@ -6,13 +6,11 @@ class UniqueFieldValidator:
     """
     Validator for checking that all fields contain unique information.
     """
-    message = _('The field {field_name} must be unique.')
     missing_message = _('This field is required.')
     requires_context = True
 
-    def __init__(self, fields, message=None):
+    def __init__(self, fields):
         self.fields = fields
-        self.message = message or self.message
 
     def enforce_required_fields(self, attrs, serializer):
         """
@@ -32,7 +30,6 @@ class UniqueFieldValidator:
 
     def __call__(self, attrs, serializer):
         self.enforce_required_fields(attrs, serializer)
-        for field, value in attrs.items():
-            if list(attrs.values()).count(value) > 1:
-                message = self.message.format(field_name=field)
-                raise serializers.ValidationError(message)
+        fields_values = {attrs[key] for key in attrs if key in self.fields}
+        if len(self.fields) != len(fields_values):
+            raise serializers.ValidationError('Fields must be unique!')
